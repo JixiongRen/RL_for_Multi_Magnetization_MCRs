@@ -15,7 +15,7 @@ class ControllerSofa(Sofa.Core.Controller):
     SOFA环境中多磁化MCR(磁性连续体机器人)的控制器类。
 
     该控制器负责处理键盘事件输入，控制磁场方向和导管的插入/回撤操作。
-    它连接SOFA仿真环境与磁场控制器，实现对磁性导管的实时控制。
+    它连接SOFA仿真环境与磁场控制器, 实现对磁性导管的实时控制。
 
     :param root_node: SOFA仿真的根节点 (Sofa.Core.Node)
     :param supiee: SUPIEE磁场发生器实例 (multi_magnetization_mcr_supiee.SUPIEE)
@@ -97,7 +97,7 @@ class ControllerSofa(Sofa.Core.Controller):
         rot_vec = val * DFIELD_ANGLE * np.array([0.0, 0.0, 1.0])
         r = R.from_rotvec(rot_vec)
         self.mag_controller.field_des = r.apply(self.mag_controller.field_des)
-        print(f"Rotated magnetic field: {self.mag_controller.field_des}")
+        # print(f"Rotated magnetic field around Z-axis: {self.mag_controller.field_des}")
 
 
     def rotateX(self, val: int) -> None:
@@ -109,7 +109,7 @@ class ControllerSofa(Sofa.Core.Controller):
         rot_vec = val * DFIELD_ANGLE * np.array([1.0, 0.0, 0.0])
         r = R.from_rotvec(rot_vec)
         self.mag_controller.field_des = r.apply(self.mag_controller.field_des)
-        print(f"Rotated magnetic field: {self.mag_controller.field_des}")
+        # print(f"Rotated magnetic field around X-axis: {self.mag_controller.field_des}")
 
 
     def insertRetract(self, val: float):

@@ -21,7 +21,7 @@ AORTIC_CATHETER_DESTINATION_EXIT_POINT = \
 
 
 @unique
-class ObervationType(Enum):
+class ObservationType(Enum):
     RGB = 0
     STATE = 1
 
@@ -44,26 +44,26 @@ class MultiMagnetizaitonMCREnv(SofaEnv):
 
     该环境的目标是旋转并移动导管，使其沿动脉前进至指定目的地。可通过 create_scene_kwargs 调整工作空间大小；详见 scene_description.py。提供两种场景(平面或主动脉)，可通过参数 env_type 选择。
     
-    参数：
-        image_shape (Tuple[int, int])：渲染图像的高度与宽度。
-        create_scene_kwargs (Optional[dict])：传递给 createScene 函数的额外关键字参数字典。
-        observation_type (ObservationType)：返回 RGB 图像或状态数组作为观测。
-        action_type (ActionType)：离散或连续动作，用于定义环境的动作空间。
-        time_step (float)：仿真时间步长(秒)(默认：0.1)。
-        frame_skip (int)：每次 step 调用执行的仿真步数(调用 \_do_action 并推进仿真)(默认：1)。
-        settle_steps (int)：环境重置后，在返回观测前需要模拟的步数。
-        render_mode (RenderMode)：创建窗口(RenderMode.HUMAN)、无头运行(RenderMode.HEADLESS)，或不创建渲染缓冲(RenderMode.NONE)。
-        reward_amount_dict (dict)：用于对奖励函数各组成部分加权的字典。
-        target_position (Optional[np.ndarray])：场景中导管尖端的目标位置。
-        env_type (EnvType)：使用平面(EnvType.FLAT)或主动脉(EnvType.AORTIC)场景。
-        target_distance_threshold (float)：奖励函数的距离阈值(默认：0.015)。
-        num_catheter_tracking_points (int)：需要跟踪的导管点数量(默认：4)。
+    参数:
+        image_shape (Tuple[int, int]): 渲染图像的高度与宽度。
+        create_scene_kwargs (Optional[dict]): 传递给 createScene 函数的额外关键字参数字典。
+        observation_type (ObservationType): 返回 RGB 图像或状态数组作为观测。
+        action_type (ActionType): 离散或连续动作，用于定义环境的动作空间。
+        time_step (float): 仿真时间步长(秒)(默认:0.1)。
+        frame_skip (int): 每次 step 调用执行的仿真步数(调用 \_do_action 并推进仿真)(默认:1)。
+        settle_steps (int): 环境重置后，在返回观测前需要模拟的步数。
+        render_mode (RenderMode): 创建窗口(RenderMode.HUMAN)、无头运行(RenderMode.HEADLESS)，或不创建渲染缓冲(RenderMode.NONE)。
+        reward_amount_dict (dict): 用于对奖励函数各组成部分加权的字典。
+        target_position (Optional[np.ndarray]): 场景中导管尖端的目标位置。
+        env_type (EnvType): 使用平面(EnvType.FLAT)或主动脉(EnvType.AORTIC)场景。
+        target_distance_threshold (float): 奖励函数的距离阈值(默认:0.015)。
+        num_catheter_tracking_points (int): 需要跟踪的导管点数量(默认:4)。
     """
     def __init__(
             self,
             image_shape: Tuple[int, int] = (400, 400),
             create_scene_kwargs: Optional[dict]=None,
-            observation_type: ObervationType=ObervationType.STATE,
+            observation_type: ObservationType=ObservationType.STATE,
             action_type: ActionType=ActionType.CONTINUOUS,
             time_step: float=0.1,
             frame_skip: int=1,
@@ -116,7 +116,7 @@ class MultiMagnetizaitonMCREnv(SofaEnv):
         ###########################
         # 1. 设置观测空间
         ###########################
-        if self.observation_type == ObervationType.STATE:
+        if self.observation_type == ObservationType.STATE:
             #  - 器械尖端位姿: 位置(3,) + 四元数(4,) = (7,)
             #  - 器械上若干个跟踪点的位置: num_catheter_tracking_points * 3
             #  - 磁场 B (3,)
@@ -128,7 +128,7 @@ class MultiMagnetizaitonMCREnv(SofaEnv):
                 shape=(observations_size,),
                 dtype=np.float32,
             )
-        elif self.observation_type == ObervationType.RGB:
+        elif self.observation_type == ObservationType.RGB:
             self.observation_space = spaces.Box(
                 low=0,
                 high=255,
@@ -167,9 +167,9 @@ class MultiMagnetizaitonMCREnv(SofaEnv):
     ) -> Union[np.ndarray, dict]:
         """ 根据 ``ObservationType`` 组装正确的观测 """
 
-        if self.observation_type == ObervationType.RGB:
+        if self.observation_type == ObservationType.RGB:
             return image_observation
-        elif self.observation_type == ObervationType.STATE:
+        elif self.observation_type == ObservationType.STATE:
             obs = {
                 # 尖端柔性段位置 + 四元数
                 "position-quaternion-catheter-tip": self.multi_magnetization_mcr_controller_sofa.get_pos_quat_catheter_tip(),

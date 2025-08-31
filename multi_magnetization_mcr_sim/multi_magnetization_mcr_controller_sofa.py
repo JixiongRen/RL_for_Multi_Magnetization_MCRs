@@ -119,10 +119,10 @@ class ControllerSofa(Sofa.Core.Controller):
         :param val: 插入/回撤的方向和幅度，正值表示插入，负值表示回撤
 
         说明:
-            - 每步移动距离为0.0015单位
+            - 每步移动距离增加到0.005单位（原为0.0015）以获得更明显的效果
             - 如果操作会使导管尖端超出安全范围(>1.01)，将标记为无效操作
         """
-        d_step = 0.0015
+        d_step = 0.005  # 增加步长从0.0015到0.005
         irc_xtip = self._getXTipValue()
         if (float(irc_xtip) + (val * d_step)) > 1.01:
             self.invalid_action = True

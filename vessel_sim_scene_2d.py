@@ -4,8 +4,8 @@ vessel_sim_scene_2d — 构建基于 SOFA 的 2D 平面血管场景。
 功能概述:
 - 加载平面血管 STL 模型 (meshes/flat_models/flat_model_circles.stl)。
 - 配置相机与光照以进行离屏渲染或交互调试。
-- 基于梁模型构建带三段永磁体的导管，并设定初始位姿。
-- 连接 SUPIEE 与 SOFA 控制器，返回场景关键对象句柄。
+- 基于梁模型构建带三段永磁体的导管, 并设定初始位姿。
+- 连接 SUPIEE 与 SOFA 控制器, 返回场景关键对象句柄。
 
 主要依赖:
 - SOFA 与 sofa_env (Camera)。
@@ -56,12 +56,12 @@ def createScene(
     """
     创建并装配 2D 血管仿真场景。
 
-    :param root_node: SOFA 根节点，场景会在该节点下创建所有对象。
-    :param image_shape: (宽, 高) 像素，用于相机离屏渲染尺寸；为 (None, None) 时使用默认。
-    :param debug_rendering: 若为 True，显示相机实体等调试可视化。
-    :param positioning_camera: 若为 True，将 Camera 节点加入图中以便交互定位。
+    :param root_node: SOFA 根节点, 场景会在该节点下创建所有对象。
+    :param image_shape: (宽, 高) 像素, 用于相机离屏渲染尺寸;为 (None, None) 时使用默认。
+    :param debug_rendering: 若为 True, 显示相机实体等调试可视化。
+    :param positioning_camera: 若为 True, 将 Camera 节点加入图中以便交互定位。
 
-    :return dict，包含以下键:
+    :return dict, 包含以下键:
       - "multi_magnetization_mcr_controller_sofa": 控制器对象。
       - "multi_magnetization_mcr_environment": 环境对象。
       - "camera": 相机对象。
@@ -69,7 +69,7 @@ def createScene(
     说明:
     - 环境 STL 通过 T_env_sim 放置到仿真坐标系中。
     - 器械入口位姿由 T_start_env 变换得到 T_start_sim 后用于初始化导管。
-    - 导管采用主体段+柔性段梁模型 (num_elem_tip=10)，magnets_layout 以物理间距配置三段永磁体。
+    - 导管采用主体段+柔性段梁模型 (num_elem_tip=10), magnets_layout 以物理间距配置三段永磁体。
     """
 
     # =============== 校准文件路径 ================
@@ -100,37 +100,37 @@ def createScene(
 
     # =============== 坐标变换参数 ===============
     """
-    下面结合项目内各文件，说明该段变换代码中三者的坐标系与相对位姿关系。
+    下面结合项目内各文件, 说明该段变换代码中三者的坐标系与相对位姿关系。
 
     全局与局部坐标系
-    - SOFA 仿真全局坐标系(sim): 场景根节点所在的世界坐标系，`scene_description_2d.py` 中最终生成的所有对象都放置在此坐标系下。
-    - 环境坐标系(env): 血管模型（场景几何与障碍物）天然定义所在的坐标系，通过 `T_env_sim` 放置到 sim。
-    - 磁导航/控制坐标系(mns): 代码中给出 `T_sim_mns` 为单位变换，表示 mns 与 sim 对齐（默认重合）。
+    - SOFA 仿真全局坐标系(sim): 场景根节点所在的世界坐标系, `scene_description_2d.py` 中最终生成的所有对象都放置在此坐标系下。
+    - 环境坐标系(env): 血管模型(场景几何与障碍物)天然定义所在的坐标系, 通过 `T_env_sim` 放置到 sim。
+    - 磁导航/控制坐标系(mns): 代码中给出 `T_sim_mns` 为单位变换, 表示 mns 与 sim 对齐(默认重合)。
     
     变换与位姿构造
     - 环境到仿真:  
-      `T_env_sim = [transl_env_sim, quat_env_sim]`。位置用 `transl_env_sim`，方向由欧拉角 `rot_env_sim` 构造 `quat_env_sim`。本项目默认设为全零，因而环境坐标系与仿真全局坐标系重合。
-    - 器械（导管）初始位姿的坐标系切换:  
-      在环境坐标系中给定入口位姿 `T_start_env = [p_env, q_env]`，然后按下式转换到仿真坐标系：
+      `T_env_sim = [transl_env_sim, quat_env_sim]`。位置用 `transl_env_sim`, 方向由欧拉角 `rot_env_sim` 构造 `quat_env_sim`。本项目默认设为全零, 因而环境坐标系与仿真全局坐标系重合。
+    - 器械(导管)初始位姿的坐标系切换:  
+      在环境坐标系中给定入口位姿 `T_start_env = [p_env, q_env]`, 然后按下式转换到仿真坐标系：
       - 位置: p_sim = R_env_sim · p_env + t_env_sim  
       - 姿态: q_sim = q_env_sim ⊗ q_env  
-      代码中用 `R.from_euler("xyz", rot_env_sim)` 旋转位置，用 `Quat.createFromEuler(rot_env_sim)` 与 `q.rotateFromQuat(qrot)` 组合姿态，语义即“先施加环境→仿真的旋转，再叠加器械在环境中的初始旋转”。在默认零变换时，p_sim = p_env，q_sim = q_env。
+      代码中用 `R.from_euler("xyz", rot_env_sim)` 旋转位置, 用 `Quat.createFromEuler(rot_env_sim)` 与 `q.rotateFromQuat(qrot)` 组合姿态, 语义即“先施加环境→仿真的旋转, 再叠加器械在环境中的初始旋转”。在默认零变换时, p_sim = p_env, q_sim = q_env。
     - mns 与仿真:  
-      `T_sim_mns` 为单位四元数与零平移，表示 mns 坐标与 sim 坐标一致，便于在控制与物理场计算时无需再做坐标切换。
+      `T_sim_mns` 为单位四元数与零平移, 表示 mns 坐标与 sim 坐标一致, 便于在控制与物理场计算时无需再做坐标切换。
     
     这些位姿在场景中的落地
-    - 血管模型: 在 `scene_description_2d.py` 中，血管/环境几何按环境坐标定义，再由 `T_env_sim` 放入仿真全局坐标系。默认零变换时，血管原点与仿真原点一致。
-    - 器械初始位姿: 由上式得到的 `T_start_sim` 提供给器械构造。可在 `mcr_sim/mcr_instrument.py` 中看到，`InterventionalRadiologyController` 的 `startingPos` 即使用该 `T_start_sim`。
-    - 环境封装: 在 `mcr_env.py` 的 `MCREnv._init_sim()` 中，场景加载后拿到控制器与环境对象，器械和血管最终都在 sim 坐标系下实例化。
+    - 血管模型: 在 `scene_description_2d.py` 中, 血管/环境几何按环境坐标定义, 再由 `T_env_sim` 放入仿真全局坐标系。默认零变换时, 血管原点与仿真原点一致。
+    - 器械初始位姿: 由上式得到的 `T_start_sim` 提供给器械构造。可在 `mcr_sim/mcr_instrument.py` 中看到, `InterventionalRadiologyController` 的 `startingPos` 即使用该 `T_start_sim`。
+    - 环境封装: 在 `mcr_env.py` 的 `MCREnv._init_sim()` 中, 场景加载后拿到控制器与环境对象, 器械和血管最终都在 sim 坐标系下实例化。
     
     默认数值下的直观关系
-    - `rot_env_sim = 0`、`transl_env_sim = 0` 时，env ≡ sim，mns ≡ sim。
-    - 器械初始位置即 `[-0.04, 0.01, 0.002]` m，相对于血管模型与仿真原点的偏移一致；初始朝向为单位四元数（在代码默认下与 env→sim 的旋转相同为零），因此器械与血管坐标轴对齐，从该入口位姿插入场景。
+    - `rot_env_sim = 0`、`transl_env_sim = 0` 时, env ≡ sim, mns ≡ sim。
+    - 器械初始位置即 `[-0.04, 0.01, 0.002]` m, 相对于血管模型与仿真原点的偏移一致;初始朝向为单位四元数(在代码默认下与 env→sim 的旋转相同为零), 因此器械与血管坐标轴对齐, 从该入口位姿插入场景。
     
     文件关联
-    - 位姿构造于 `scene_description_2d.py`，并传入器械；  
-    - 器械使用位置与姿态见 `mcr_sim/mcr_instrument.py`（`startingPos=T_start_sim`）；  
-    - 环境和控制封装见 `mcr_env.py`（初始化后获取 `mcr_controller_sofa`、`mcr_environment` 并运行）。
+    - 位姿构造于 `scene_description_2d.py`, 并传入器械;  
+    - 器械使用位置与姿态见 `mcr_sim/mcr_instrument.py`(`startingPos=T_start_sim`);  
+    - 环境和控制封装见 `mcr_env.py`(初始化后获取 `mcr_controller_sofa`、`mcr_environment` 并运行)。
     """
 
     # 环境(血管模型)在仿真坐标系下的变换

@@ -3,9 +3,9 @@ vessel_sim_scene_3d — 构建基于 SOFA 的 3D 血管场景。
 
 功能概述:
 - 加载 3D 血管解剖 STL 模型 (meshes/anatomies/J2-Naviworks.stl)。
-- 配置相机与光照，支持定位调试与渲染。
-- 基于梁模型构建带三段永磁体的导管，并以给定入口位姿放置。
-- 连接 SUPIEE、控制器与仿真器，返回关键对象句柄。
+- 配置相机与光照, 支持定位调试与渲染。
+- 基于梁模型构建带三段永磁体的导管, 并以给定入口位姿放置。
+- 连接 SUPIEE、控制器与仿真器, 返回关键对象句柄。
 
 主要依赖:
 - SOFA 与 sofa_env (Camera)。
@@ -13,8 +13,8 @@ vessel_sim_scene_3d — 构建基于 SOFA 的 3D 血管场景。
 - 本仓库 calib 与 meshes 资源。
 
 坐标系约定:
-- 环境到仿真: 由 T_env_sim 指定 (平移+四元数)。本脚本默认让血管沿 X 轴约 90° 旋转并在 Y 上平移，以获得合适的 3D 视角与插入方向。
-- 器械入口位姿: 在环境坐标系下给定 T_start_env，经 R.from_quat(rot_env_sim) 与四元数组合转换为 T_start_sim。
+- 环境到仿真: 由 T_env_sim 指定 (平移+四元数)。本脚本默认让血管沿 X 轴约 90° 旋转并在 Y 上平移, 以获得合适的 3D 视角与插入方向。
+- 器械入口位姿: 在环境坐标系下给定 T_start_env, 经 R.from_quat(rot_env_sim) 与四元数组合转换为 T_start_sim。
 - 磁导航(mns)与仿真(sim)默认重合 (T_sim_mns 为单位变换)。
 """
 
@@ -52,20 +52,20 @@ def createScene(
     """
     创建并装配 3D 血管仿真场景。
 
-    :param root_node: SOFA 根节点，场景会在该节点下创建所有对象。
-    :param image_shape: (宽, 高) 像素，用于相机离屏渲染尺寸；为 (None, None) 时使用默认。
-    :param debug_rendering: 若为 True，显示相机实体等调试可视化。
-    :param positioning_camera: 若为 True，将 Camera 节点加入图中以便交互定位。
+    :param root_node: SOFA 根节点, 场景会在该节点下创建所有对象。
+    :param image_shape: (宽, 高) 像素, 用于相机离屏渲染尺寸；为 (None, None) 时使用默认。
+    :param debug_rendering: 若为 True, 显示相机实体等调试可视化。
+    :param positioning_camera: 若为 True, 将 Camera 节点加入图中以便交互定位。
 
-    :return dict，包含以下键:
+    :return dict, 包含以下键:
       - "multi_magnetization_mcr_controller_sofa": 控制器对象。
       - "multi_magnetization_mcr_environment": 环境对象。
       - "camera": 相机对象。
 
     说明:
-    - 环境 STL 通过 T_env_sim (四元数+平移) 放置到仿真坐标系中，必要时可通过 filp_normals 翻转法线以获得正确可视化。
-    - 器械入口位姿由 T_start_env 结合 rot_env_sim 的四元数变换得到 T_start_sim，用于初始化导管。
-    - 导管采用主体段+柔性段梁模型 (num_elem_tip=10)，magnets_layout 以物理间距配置三段永磁体。
+    - 环境 STL 通过 T_env_sim (四元数+平移) 放置到仿真坐标系中, 必要时可通过 filp_normals 翻转法线以获得正确可视化。
+    - 器械入口位姿由 T_start_env 结合 rot_env_sim 的四元数变换得到 T_start_sim, 用于初始化导管。
+    - 导管采用主体段+柔性段梁模型 (num_elem_tip=10), magnets_layout 以物理间距配置三段永磁体。
     """
     # =============== 校准文件路径 ================
     cal_path = str(HERE / "calib/Navion_2_Calibration_24-02-2020.yaml")

@@ -13,7 +13,7 @@ from rl.replay_buffer import ReplayBuffer
 
 
 class ESCKeyListener:
-    """ESC键监听器，使用pynput在后台监听键盘事件"""
+    """ESC键监听器, 使用pynput在后台监听键盘事件"""
     def __init__(self):
         self.esc_pressed = False
         self.listener = None
@@ -172,7 +172,7 @@ def main() -> None:
         done = term or trunc
         buffer.store(obs, action, rew, next_obs, done)
 
-        # 步级统计（距离/违规）
+        # 步级统计(距离/违规)
         tip_dist = float(info.get("tip_pos_distance_to_dest_pos", np.nan))
         ep_min_dist = min(ep_min_dist, tip_dist) if not np.isnan(tip_dist) else ep_min_dist
         ep_last_dist = tip_dist if not np.isnan(tip_dist) else ep_last_dist
@@ -246,7 +246,7 @@ def main() -> None:
                 )
             )
 
-            # 回合结束，重置
+            # 回合结束, 重置
             obs, _ = env.reset()
             ep_ret, ep_len = 0.0, 0
             ep_min_dist = float("inf")

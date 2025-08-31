@@ -4,10 +4,44 @@ import time
 from pathlib import Path
 import numpy as np
 from collections import deque
+import threading
+from pynput import keyboard
 
 from mmmcrs_rl_controller_env import MMMCRsRLControllerEnv, EnvType, RenderMode
 from rl.ddpg import DDPG, DDPGConfig
 from rl.replay_buffer import ReplayBuffer
+
+
+class ESCKeyListener:
+    """ESC键监听器，使用pynput在后台监听键盘事件"""
+    def __init__(self):
+        self.esc_pressed = False
+        self.listener = None
+        
+    def on_press(self, key):
+        """键盘按下事件处理"""
+        try:
+            if key == keyboard.Key.esc:
+                self.esc_pressed = True
+                print("\n[ESC Key Detection] Detected ESC key pressed, preparing to terminate training...")
+                # 停止监听器
+                return False
+        except AttributeError:
+            pass
+    
+    def start_listening(self):
+        """开始监听键盘事件"""
+        self.listener = keyboard.Listener(on_press=self.on_press)
+        self.listener.start()
+        
+    def stop_listening(self):
+        """停止监听键盘事件"""
+        if self.listener:
+            self.listener.stop()
+            
+    def is_esc_pressed(self) -> bool:
+        """检查是否按下了ESC键"""
+        return self.esc_pressed
 
 
 def evaluate(env: MMMCRsRLControllerEnv, agent: DDPG, episodes: int = 5) -> tuple[float, float]:
@@ -115,8 +149,19 @@ def main() -> None:
 
     best_eval = -np.inf
     start_time = time.perf_counter()
+    
+    # 初始化ESC键监听器
+    esc_listener = ESCKeyListener()
+    esc_listener.start_listening()
+    training_terminated = False
+    print("Training started! Press ESC key to terminate training at any time...")
 
     for step in range(1, args.total_steps + 1):
+        # 检测ESC键按下
+        if esc_listener.is_esc_pressed():
+            print(f"\n[ESC Key Detection] User requested to terminate training (Step {step}/{args.total_steps})")
+            training_terminated = True
+            break
         cur_noise = noise_scale(step)
         if step < args.start_steps:
             action = env.action_space.sample().astype(np.float32)
@@ -221,7 +266,25 @@ def main() -> None:
                 best_eval = mean_r
                 agent.save(str(save_dir / "best.pt"))
 
-    env.close()
+    # 停止键盘监听器
+    esc_listener.stop_listening()
+    
+    # 处理训练终止情况
+    if training_terminated:
+        print(f"\n[Training Terminated] Training was terminated early at step {step} due to ESC key press")
+        print("Saving current model...")
+        # Save current state
+        agent.save(str(save_dir / "interrupted.pt"))
+        elapsed = time.perf_counter() - start_time
+        print(f"Total training time: {elapsed/60:.2f} minutes")
+        print("GUI window will be closed...")
+
+    # 关闭环境和GUI窗口
+    try:
+        env.close()
+        print("Environment closed safely")
+    except Exception as e:
+        print(f"Error occurred while closing environment: {e}")
 
 
 if __name__ == "__main__":

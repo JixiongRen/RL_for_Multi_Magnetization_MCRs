@@ -38,6 +38,8 @@ from multi_magnetization_mcr_sim import \
 
 from sofa_env.sofa_templates.camera import Camera, CAMERA_PLUGIN_LIST
 
+from multi_magnetization_mcr_env import FLAT_CATHETER_DESTINATION_EXIT_POINT
+
 
 HERE = Path(__file__).resolve().parent
 PLUGIN_LIST = [
@@ -262,6 +264,29 @@ def createScene(
         T_sim_mns=T_sim_supiee,
     )
     root_node.addObject(controller_sofa)
+
+    # =============== 可视化标记小球 ===============
+    # 起点标记小球（绿色）
+    start_marker = root_node.addChild("start_marker")
+    start_marker.addObject('MechanicalObject', 
+                          name="mstate", 
+                          template="Rigid3", 
+                          position=[T_start_sim[0], T_start_sim[1], T_start_sim[2], 0, 0, 0, 1],
+                          showObject=True,
+                          showObjectScale=0.01,  # 显示为可见的球体
+                          drawMode=1)  # 使用球体绘制模式
+    
+    # 终点标记小球（红色）
+    # 使用2D场景的默认目标位置
+    target_position = FLAT_CATHETER_DESTINATION_EXIT_POINT
+    end_marker = root_node.addChild("end_marker")
+    end_marker.addObject('MechanicalObject', 
+                        name="mstate", 
+                        template="Rigid3", 
+                        position=[target_position[0], target_position[1], target_position[2], 0, 0, 0, 1],
+                        showObject=True,
+                        showObjectScale=0.01,  # 显示为可见的球体
+                        drawMode=1)  # 使用球体绘制模式
 
     # ================ 返回数据 ===============
     scene_creation_result = {

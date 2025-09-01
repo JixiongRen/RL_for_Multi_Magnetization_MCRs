@@ -8,15 +8,11 @@ from multi_magnetization_mcr_env import (
     MultiMagnetizaitonMCREnv,
     EnvType,
     RenderMode,
-    # ObervationType 在上游文件中存在拼写不一致, 这里动态兼容
+    ObservationType as _ObsType,
     ActionType,
+    FLAT_CATHETER_DESTINATION_EXIT_POINT,
+    AORTIC_CATHETER_DESTINATION_EXIT_POINT,
 )
-
-# 动态解析 ObservationType/ObervationType
-try:  # 优先使用上游广泛引用的拼写
-    from multi_magnetization_mcr_env import ObervationType as _ObsType
-except Exception:  # 退回到语义正确的拼写
-    from multi_magnetization_mcr_env import ObservationType as _ObsType
 
 
 class MMMCRsRLControllerEnv(MultiMagnetizaitonMCREnv):

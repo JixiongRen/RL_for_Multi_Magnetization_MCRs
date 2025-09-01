@@ -225,27 +225,42 @@ def createScene(
     root_node.addObject(controller_sofa)
 
     # =============== 可视化标记小球 ===============
-    # 起点标记小球（绿色）
+    # 起点标记立方体（绿色）
+    cube_size = 0.01  # 10mm边长
     start_marker = root_node.addChild("start_marker")
-    start_marker.addObject('MechanicalObject', 
-                          name="mstate", 
-                          template="Rigid3", 
-                          position=[T_start_sim[0], T_start_sim[1], T_start_sim[2], 0, 0, 0, 1],
-                          showObject=True,
-                          showObjectScale=0.01,  # 显示为可见的球体
-                          drawMode=1)  # 使用球体绘制模式
-    
-    # 终点标记小球（红色）
+    start_marker.addObject('MechanicalObject',
+                           name="mstate",
+                           template="Vec3",
+                           position=[T_start_sim[0], T_start_sim[1], T_start_sim[2]])
+
+    # 创建小立方体几何
+    start_marker.addObject('RegularGridTopology',
+                           name="grid",
+                           min=[T_start_sim[0]-cube_size/2, T_start_sim[1]-cube_size/2, T_start_sim[2]-cube_size/2],
+                           max=[T_start_sim[0]+cube_size/2, T_start_sim[1]+cube_size/2, T_start_sim[2]+cube_size/2],
+                           n=[2, 2, 2])
+    start_marker.addObject('OglModel',
+                           name="visual",
+                           color=[0.0, 1.0, 0.0, 0.1])  # 绿色半透明
+
+    # 终点标记立方体（红色）
     # 使用3D场景的默认目标位置
     target_position = AORTIC_CATHETER_DESTINATION_EXIT_POINT
     end_marker = root_node.addChild("end_marker")
-    end_marker.addObject('MechanicalObject', 
-                        name="mstate", 
-                        template="Rigid3", 
-                        position=[target_position[0], target_position[1], target_position[2], 0, 0, 0, 1],
-                        showObject=True,
-                        showObjectScale=0.01,  # 显示为可见的球体
-                        drawMode=1)  # 使用球体绘制模式
+    end_marker.addObject('MechanicalObject',
+                         name="mstate",
+                         template="Vec3",
+                         position=[target_position[0], target_position[1], target_position[2]])
+
+    # 创建小立方体几何
+    end_marker.addObject('RegularGridTopology',
+                         name="grid",
+                         min=[target_position[0]-cube_size/2, target_position[1]-cube_size/2, target_position[2]-cube_size/2],
+                         max=[target_position[0]+cube_size/2, target_position[1]+cube_size/2, target_position[2]+cube_size/2],
+                         n=[2, 2, 2])
+    end_marker.addObject('OglModel',
+                         name="visual",
+                         color=[1.0, 0.0, 0.0, 0.1])  # 红色半透明
 
     # ================ 返回数据 ===============
     scene_creation_result = {

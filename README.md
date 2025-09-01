@@ -124,12 +124,12 @@ python human_controller.py --env_type AORTIC  # 使用3D主动脉场景
 要将环境用于强化学习，可以导入环境并进行自定义：
 
 ```python
-from multi_magnetization_mcr_env import MultiMagnetizaitonMCREnv, EnvType, ObervationType
+from multi_magnetization_mcr_env import MultiMagnetizaitonMCREnv, EnvType, ObservationType
 
 # 创建环境
 env = MultiMagnetizaitonMCREnv(
     image_shape=(400, 400),
-    observation_type=ObervationType.STATE,
+    observation_type=ObservationType.STATE,
     env_type=EnvType.FLAT,
     render_mode=RenderMode.HEADLESS,
     reward_amount_dict={
@@ -199,12 +199,12 @@ reward_amount_dict = {
 ### 使用Stable Baselines3
 
 ```python
-from multi_magnetization_mcr_env import MultiMagnetizaitonMCREnv, EnvType, ObervationType
+from multi_magnetization_mcr_env import MultiMagnetizaitonMCREnv, EnvType, ObservationType
 from stable_baselines3 import SAC, PPO
 
 # 创建环境
 env = MultiMagnetizaitonMCREnv(
-    observation_type=ObervationType.STATE,
+    observation_type=ObservationType.STATE,
     env_type=EnvType.FLAT,
 )
 
